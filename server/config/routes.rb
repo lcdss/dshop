@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  resources :users, only: [:create]
+
+  get '/auth/me', to: 'auth#me'
+  post '/auth/login', to: 'auth#login'
 end

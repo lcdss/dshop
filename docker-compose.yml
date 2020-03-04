@@ -19,6 +19,7 @@ services:
       - ./init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
   server:
+    env_file: .env
     build:
       context: ./
     container_name: dshop-server
@@ -26,7 +27,9 @@ services:
     expose:
       - 3000
     environment:
-      VIRTUAL_HOST: api.dshop.local
+      VIRTUAL_HOST: ${API_HOST}
+      JWT_SECRET: ${JWT_SECRET}
+      CLIENT_HOST: ${CLIENT_HOST}
     volumes:
       - ./server:/usr/src/app
     tty: true
@@ -40,7 +43,8 @@ services:
     expose:
       - 3000
     environment:
-      VIRTUAL_HOST: dshop.local
+      VIRTUAL_HOST: ${CLIENT_HOST}
+      REACT_APP_API_BASE_URL: ${API_BASE_URL}
     volumes:
       - ./client:/usr/src/app
     tty: true
