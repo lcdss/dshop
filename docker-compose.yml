@@ -1,0 +1,47 @@
+version: "3.6"
+
+services:
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: dshop-proxy
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  db:
+    image: postgres:alpine
+    container_name: dshop-db
+    environment:
+      POSTGRES_USER: dshop
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+
+  server:
+    build:
+      context: ./
+    container_name: dshop-server
+    working_dir: /usr/src/app
+    expose:
+      - 3000
+    environment:
+      VIRTUAL_HOST: api.dshop.local
+    volumes:
+      - ./server:/usr/src/app
+    tty: true
+    stdin_open: true
+
+  client:
+    image: node:alpine
+    container_name: dshop-client
+    working_dir: /usr/src/app
+    user: node
+    expose:
+      - 3000
+    environment:
+      VIRTUAL_HOST: dshop.local
+    volumes:
+      - ./client:/usr/src/app
+    tty: true
+    stdin_open: true
