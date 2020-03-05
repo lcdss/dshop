@@ -1,29 +1,60 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button } from 'antd';
+import { useStoreActions, useStoreState } from '../hooks';
+import { Modal, Form, Input, Button, message } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import { Store } from 'rc-field-form/lib/interface';
 
 type FormType = 'login' | 'register';
 
 const AuthModal = () => {
+  const { login, register } = useStoreActions(actions => actions.auth);
+  const isAuthenticated = useStoreState(state => state.auth.isAuthenticated);
+
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<FormType>('login');
 
-  const handleSubmit = (values: Store) => {
-    console.log('Received values of form: ', values);
-
+  const handleLogin = ({ email, password }: Store) => {
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      setShowModal(false);
-    }, 2000);
+    login({ email, password })
+      .then(() => {
+        setLoading(false);
+        setShowModal(false);
+        message.success('You are logged in now');
+      })
+      .catch(() => {
+        message.error('Invalid credentials! Please, try again');
+      });
   };
+
+  const handleRegister = ({ name, email, password }: Store) => {
+    setLoading(true);
+
+    register({ name, email, password })
+      .then(() => {
+        setLoading(false);
+        setShowModal(false);
+        message.success('Thank you for joining us');
+      })
+      .catch(() => {
+        message.error('The e-mail is already taken');
+      });
+  };
+
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <>
-      <Button type="primary" onClick={() => setShowModal(true)}>
+      <Button
+        type="primary"
+        onClick={() => {
+          setType('login');
+          setShowModal(true);
+        }}
+      >
         Log in
       </Button>
       <Modal
@@ -34,7 +65,7 @@ const AuthModal = () => {
         destroyOnClose={true}
         onCancel={() => setShowModal(false)}
       >
-        <Form onFinish={handleSubmit}>
+        <Form onFinish={type === 'login' ? handleLogin : handleRegister}>
           {type === 'register' && (
             <Form.Item
               name="name"

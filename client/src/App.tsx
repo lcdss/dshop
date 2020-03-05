@@ -1,16 +1,40 @@
 import logo from './assets/images/logo.png';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { Layout, Menu, Avatar, Dropdown, message, Button } from 'antd';
 
-import AuthButton from './components/AuthButton';
+import AuthModal from './components/AuthModal';
+import { useStoreActions, useStoreState } from './hooks';
 
 const { Header, Footer, Content } = Layout;
 
 const App: React.FC<RouteComponentProps> = ({ children }) => {
-  const handleUserMenuClick = ({ key }: { key: string }) => {
-    message.info(`Click on item ${key}`);
+  const { loadAuth, logout } = useStoreActions(actions => actions.auth);
+  const { isAuthenticated, avatarUrl } = useStoreState(state => state.auth);
+  const [loading, setLoading] = useState(true);
+
+  const handleLogout = () => {
+    logout().then(() => {
+      message.info('You have logged out');
+    });
   };
+
+  useEffect(() => {
+    loadAuth()
+      .then(() => {
+        console.log('User authenticated');
+      })
+      .catch(() => {
+        console.log('Guest user');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [loadAuth]);
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -39,18 +63,21 @@ const App: React.FC<RouteComponentProps> = ({ children }) => {
               <Menu.Item key="2">Shops</Menu.Item>
             </Menu>
             <Menu theme="dark" mode="horizontal" style={{ lineHeight: '64px' }}>
-              <AuthButton />
-              <Dropdown
-                overlay={
-                  <Menu onClick={handleUserMenuClick}>
-                    <Menu.Item key="3">Logout</Menu.Item>
-                  </Menu>
-                }
-              >
-                <Button type="link">
-                  <Avatar src="https://gravatar.com/avatar?d=mp" />
-                </Button>
-              </Dropdown>
+              <AuthModal />
+
+              {isAuthenticated && (
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
+                    </Menu>
+                  }
+                >
+                  <Button type="link">
+                    <Avatar src={avatarUrl} alt="Avatar" />
+                  </Button>
+                </Dropdown>
+              )}
             </Menu>
           </div>
         </div>
