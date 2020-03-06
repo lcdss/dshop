@@ -19,7 +19,6 @@ services:
       - ./init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
   server:
-    env_file: .env
     build:
       context: ./
     container_name: dshop-server
