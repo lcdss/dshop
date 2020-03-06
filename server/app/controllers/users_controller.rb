@@ -3,6 +3,18 @@
 class UsersController < ApplicationController
   skip_before_action :authorized, only: [:create]
 
+  def index
+    @users = User.all
+
+    render json: UserBlueprint.render(@users, root: :users)
+  end
+
+  def show
+    @user = User.find(params.fetch(:id))
+
+    render json: UserBlueprint.render(@user, root: :user)
+  end
+
   def create
     @user = User.create(user_params)
 

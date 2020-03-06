@@ -1,6 +1,6 @@
 import logo from './assets/images/logo.png';
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, Link, useLocation } from '@reach/router';
 import { Layout, Menu, Avatar, Dropdown, message, Button } from 'antd';
 
 import AuthModal from './components/AuthModal';
@@ -12,6 +12,7 @@ const App: React.FC<RouteComponentProps> = ({ children }) => {
   const { loadAuth, logout } = useStoreActions(actions => actions.auth);
   const { isAuthenticated, avatarUrl } = useStoreState(state => state.auth);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   const handleLogout = () => {
     logout().then(() => {
@@ -42,7 +43,7 @@ const App: React.FC<RouteComponentProps> = ({ children }) => {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <img
             src={logo}
-            style={{ paddingRight: 50 }}
+            style={{ paddingRight: 50, cursor: 'pointer' }}
             height="40"
             alt="DShop Logo"
           />
@@ -56,11 +57,15 @@ const App: React.FC<RouteComponentProps> = ({ children }) => {
             <Menu
               theme="dark"
               mode="horizontal"
-              defaultSelectedKeys={['1']}
+              selectedKeys={[location.pathname]}
               style={{ lineHeight: '64px' }}
             >
-              <Menu.Item key="1">Home</Menu.Item>
-              <Menu.Item key="2">Shops</Menu.Item>
+              <Menu.Item key="/">
+                <Link to="/">Home</Link>
+              </Menu.Item>
+              <Menu.Item key="/favorites">
+                <Link to="/favorites">Favorites</Link>
+              </Menu.Item>
             </Menu>
             <Menu theme="dark" mode="horizontal" style={{ lineHeight: '64px' }}>
               <AuthModal />
@@ -82,7 +87,7 @@ const App: React.FC<RouteComponentProps> = ({ children }) => {
           </div>
         </div>
       </Header>
-      <Content>{children}</Content>
+      <Content style={{ padding: 20 }}>{children}</Content>
       <Footer style={{ textAlign: 'center' }}>
         DSHOP @2020 Created by lcdss
       </Footer>

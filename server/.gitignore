@@ -22,5 +22,3 @@
 /config/master.key
 
 /db/schema.rb
-
-Gemfile.lock
